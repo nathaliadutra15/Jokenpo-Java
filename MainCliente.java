@@ -1,12 +1,7 @@
-package cliente;
-
-import java.io.PrintStream;
 import java.net.Socket;
 import java.util.Scanner;
 
-import servidor.threadAtendeCliente;
-
-public class mainCliente {
+public class MainCliente {
     public static void main(String[] args) {
         // Elementos para gerar o socket
         final String IP = "127.0.0.1";
@@ -18,7 +13,6 @@ public class mainCliente {
         //PrintStream output = null;
         Scanner teclado = new Scanner(System.in);
         int modalidadeJogo;
-        int valorJokenpo;
 
         // Criar socket e pedir conexão
         try {
@@ -31,20 +25,11 @@ public class mainCliente {
             System.out.println("[1] Com um adversário conectado       [2] Com o computador");
             modalidadeJogo = teclado.nextInt();
 
-            threadAtendeCliente atendeCliente = new threadAtendeCliente(socket, modalidadeJogo);
-            atendeCliente.start();
+            Jogador novoJogador = new Jogador(modalidadeJogo);
 
-            while (!atendeCliente.confereModalidade()) {
+            CanalComunicacao comunicacao = new CanalComunicacao(socket);
+            comunicacao.send(novoJogador);
 
-                System.out.println("Procurando por um jogador...");
-                atendeCliente.sleep(5000);
-            }
-
-            if (atendeCliente.confereModalidade()) {
-                System.out.println("Digite o valor que deseja jogar: ");
-                System.out.println("[1]Pedra    [2]Papel    [3]Tesoura");
-                valorJokenpo = teclado.nextInt();
-            }
 
         } catch (Exception e) {
             System.out.println("Não foi possível conectar ao servidor.");
@@ -53,7 +38,6 @@ public class mainCliente {
 
         // Encerrar conexão
         try {
-
             socket.close();
             teclado.close();
         } catch (Exception e) {
