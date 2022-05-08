@@ -25,7 +25,7 @@ public class MainCliente {
             System.out.println("[1] Com um adversário conectado       [2] Com o computador");
             modalidadeJogo = teclado.nextInt();
 
-            Jogador novoJogador = new Jogador(modalidadeJogo);
+            ModalidadeJogador novoJogador = new ModalidadeJogador(modalidadeJogo);
 
             CanalComunicacao comunicacao = new CanalComunicacao(socket);
             comunicacao.send(novoJogador);

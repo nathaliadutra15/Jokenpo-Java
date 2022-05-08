@@ -26,12 +26,6 @@ public static void main(String[] args) {
             Jogar iniciarJogo = new Jogar(socketCliente);
             iniciarJogo.receberLista(lista.getLista());
             iniciarJogo.start();
-
-
-            /* System.out.println("====================================================");
-            for (Socket socket : lista.getLista()) {
-                System.out.println(socket);
-            } */
         }
     } catch (Exception e) {
         System.out.println("Erro na conexão: " + e.getMessage());

@@ -4,8 +4,8 @@ import java.util.ArrayList;
 public class Jogar extends Thread {
     Socket socket;
     CanalComunicacao comunicacao;
-    //ArrayList<Socket> listaEspera = new ArrayList<>();
     ArrayList<Socket> listaConectados = new ArrayList<>();
+    ModalidadeJogador getModalidadeJogador;
     
    
     public Jogar(Socket socket) {
@@ -19,46 +19,54 @@ public class Jogar extends Thread {
 
     @Override
     public void run() {
+        this.getModalidadeJogador = (ModalidadeJogador) comunicacao.receive();
 
-        Jogador novoJogador = (Jogador) comunicacao.receive();
-
-        System.out.println("====================================================");
-        System.out.println("LAÇO");
-        for (Socket socketAguardando : listaConectados) {
-            
-            System.out.println(socketAguardando.toString());
-        }
-        
-
-        /* switch (novoJogador.getModalidadeJogo()) {
+        switch (getModalidadeJogador.getModalidadeJogo()) {
             case 1:
-            this.listaEspera.add(this.socket);
-           
+                //Procura jogador enquanto não houver jogador na lista
                 try {
                     while (!verificaDisponibilidade()) {
                         System.out.println("Procurando um jogador...");
     
-                        sleep(5000);
+                        sleep(6000);
                     }
 
-                    System.out.println("Achou alguem!");
+                    System.out.println("Achou alguem para jogar!");
     
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
                
                 break;
-
+            
+            case 2:
+                //Remove o jogador da lista de espera para jogar
+                for (int i = 0; i < listaConectados.size(); i++) {
+                    if (this.socket == listaConectados.get(i)) {
+                        listaConectados.remove(i);
+                    }
+                }    
             default:
                 break;
         }
- */
+ 
     }
 
-   /*  public boolean verificaDisponibilidade() {
-        for (Socket socketAguardando : listaEspera) {
-            System.out.println(socketAguardando.toString());
+   public boolean verificaDisponibilidade() {
+       //Procura na lista de conectados se há jogadores diferentes desejando a mesma modalidade de jogo
+       try {
+        for (int i = 0; i < listaConectados.size(); i++) {
+            if (this.socket != listaConectados.get(i) && getModalidadeJogador.getModalidadeJogo() == 1) {
+                return true;
+            } 
         }
         return false;
-    } */
+    
+       } catch (Exception e) {
+          System.out.println(e.getMessage());
+          return false;
+       }
+    
+   
+    }
 }
