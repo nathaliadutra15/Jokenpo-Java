@@ -10,7 +10,6 @@ public class MainCliente {
         // Guarda o socket gerado
         Socket socket;
 
-        //PrintStream output = null;
         Scanner teclado = new Scanner(System.in);
         int modalidadeJogo;
 
@@ -25,14 +24,41 @@ public class MainCliente {
             System.out.println("[1] Com um adversário conectado       [2] Com o computador");
             modalidadeJogo = teclado.nextInt();
 
+            // Recebe modalidade escolhida pelo jogador
             ModalidadeJogador novoJogador = new ModalidadeJogador(modalidadeJogo);
 
+            // Abre canal de comunicacao e enviar a resposta da modalidade do jogador para a
+            // thread do jogo
             CanalComunicacao comunicacao = new CanalComunicacao(socket);
             comunicacao.send(novoJogador);
 
+            // Recebe a resposta da liberação do jogo (A liberação é dada quando o jogador
+            // deseja jogar contra o computador ou quando é encontrado um outro jogador
+            // disponível na lista)
+            LiberarJogo receberLiberacao = (LiberarJogo) comunicacao.receive();
+
+            System.out.println("Pronto para jogar!");
+            Thread.sleep(2000);
+
+            switch (modalidadeJogo) {
+                case 1:
+
+
+                    break;
+                case 2:
+
+
+                
+
+                    break;
+
+                default:
+                    break;
+            }
 
         } catch (Exception e) {
             System.out.println("Não foi possível conectar ao servidor.");
+            teclado.close();
             return;
         }
 
@@ -43,5 +69,6 @@ public class MainCliente {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+
     }
 }
