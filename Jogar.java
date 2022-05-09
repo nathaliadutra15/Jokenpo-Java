@@ -7,6 +7,9 @@ public class Jogar extends Thread {
     ArrayList<Socket> listaConectados = new ArrayList<>();
     Socket jogadorLiberado;
     ModalidadeJogador getModalidadeJogador;
+    ValoresJokenpo jogador1, jogador2;
+    Socket ganhador;
+    
 
     public Jogar(Socket socket) {
         this.socket = socket;
@@ -36,7 +39,28 @@ public class Jogar extends Thread {
                     comunicacao.send(liberacao);
 
                     CanalComunicacao jogadorAnterior = new CanalComunicacao(this.jogadorLiberado);
-                    jogadorAnterior.send(liberacao);    
+                    jogadorAnterior.send(liberacao);
+                    
+                    //Receber os valores do jokenpo
+                    this.jogador1 = (ValoresJokenpo)jogadorAnterior.receive();
+
+                    comunicacao = new CanalComunicacao(this.socket);
+
+                    this.jogador2 = (ValoresJokenpo) comunicacao.receive();
+
+                    System.out.println(jogador1.getValorJokenpo() + " + " + jogador2.getValorJokenpo());
+
+
+                    ValidaJokenpo validarGanhador = new ValidaJokenpo();
+                    validarGanhador.setJogador1(this.jogadorLiberado,jogador1.getValorJokenpo());
+                    validarGanhador.setJogador2(this.socket, jogador2.getValorJokenpo());
+
+                    for (Socket ganhador : validarGanhador.getGanhador()) {
+                        System.out.println(ganhador);
+                        CanalComunicacao enviarGanhador = new CanalComunicacao(ganhador);
+                        enviarGanhador.send("VOCÊ GANHOU!");
+                    }
+                    
 
                 } catch (Exception e) {
                     System.out.println(e.getMessage());

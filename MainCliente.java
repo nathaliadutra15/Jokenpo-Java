@@ -12,6 +12,7 @@ public class MainCliente {
 
         Scanner teclado = new Scanner(System.in);
         int modalidadeJogo;
+        int valorJokenpo;
 
         // Criar socket e pedir conexão
         try {
@@ -40,24 +41,26 @@ public class MainCliente {
             System.out.println("Pronto para jogar!");
             Thread.sleep(2000);
 
-            switch (modalidadeJogo) {
-                case 1:
+            System.out.println("**************************************************************************");
+            System.out.println("                                  JOKENPO                                 ");
+            System.out.println("**************************************************************************");
+            System.out.println("Você é: " + socket.toString());
+            System.out.println("**************************************************************************");
 
+            System.out.println("Escolha um dos seguintes valores:");
+            System.out.println("[1] Pedra   [2] Papel   [3] Tesoura");
+            valorJokenpo = teclado.nextInt();
 
-                    break;
-                case 2:
+            ValoresJokenpo enviarValor = new ValoresJokenpo(valorJokenpo);
+            
+            CanalComunicacao Novacomunicacao = new CanalComunicacao(socket);
+            Novacomunicacao.send(enviarValor);
 
-
-                
-
-                    break;
-
-                default:
-                    break;
-            }
+            System.out.println(comunicacao.receive().toString()); 
 
         } catch (Exception e) {
             System.out.println("Não foi possível conectar ao servidor.");
+            System.out.println(e.getMessage());
             teclado.close();
             return;
         }
