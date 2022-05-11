@@ -11,5 +11,4 @@ public class ValoresJokenpo implements Serializable {
         return this.valorJokenpo;
     }
 
-
 }

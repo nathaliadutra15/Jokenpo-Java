@@ -17,7 +17,7 @@ public class MainCliente {
         // Criar socket e pedir conexão
         try {
             socket = new Socket(IP, PORTA);
-
+            CanalComunicacao comunicacao = new CanalComunicacao(socket);
             System.out.println("*********************************");
             System.out.println("             JOKENPO             ");
             System.out.println("*********************************");
@@ -26,17 +26,20 @@ public class MainCliente {
             modalidadeJogo = teclado.nextInt();
 
             // Recebe modalidade escolhida pelo jogador
-            ModalidadeJogador novoJogador = new ModalidadeJogador(modalidadeJogo);
+            // ModalidadeJogador modalidadeJogador = new ModalidadeJogador(modalidadeJogo);
 
-            // Abre canal de comunicacao e enviar a resposta da modalidade do jogador para a
-            // thread do jogo
-            CanalComunicacao comunicacao = new CanalComunicacao(socket);
-            comunicacao.send(novoJogador);
+            // Envia a resposta da modalidade do jogador para a thread do jogo
+            comunicacao.send(modalidadeJogo);
 
             // Recebe a resposta da liberação do jogo (A liberação é dada quando o jogador
             // deseja jogar contra o computador ou quando é encontrado um outro jogador
             // disponível na lista)
             LiberarJogo receberLiberacao = (LiberarJogo) comunicacao.receive();
+
+            while (receberLiberacao.getRespostaLiberacao() == null) {
+                System.out.println("Aguardando jogador...");
+                Thread.sleep(6000);
+            }
 
             System.out.println("Pronto para jogar!");
             Thread.sleep(2000);
@@ -51,12 +54,26 @@ public class MainCliente {
             System.out.println("[1] Pedra   [2] Papel   [3] Tesoura");
             valorJokenpo = teclado.nextInt();
 
-            ValoresJokenpo enviarValor = new ValoresJokenpo(valorJokenpo);
-            
-            CanalComunicacao Novacomunicacao = new CanalComunicacao(socket);
-            Novacomunicacao.send(enviarValor);
+            ValoresJokenpo valor = new ValoresJokenpo(valorJokenpo);
 
-            System.out.println(comunicacao.receive().toString()); 
+            comunicacao.send(valor);
+
+            Thread.sleep(6000);
+            Integer resultado = (Integer)comunicacao.receive();
+
+            switch (resultado) {
+                case 0:
+                    System.out.println("Você perdeu :( ");
+                    break;
+                case 1:
+                    System.out.println("Você ganhou! :) ");
+                    break;
+                case 2:
+                    System.out.println("Empate!");
+                    break;
+                default:
+                    break;
+            }
 
         } catch (Exception e) {
             System.out.println("Não foi possível conectar ao servidor.");

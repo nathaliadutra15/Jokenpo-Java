@@ -4,29 +4,31 @@ import java.util.ArrayList;
 public class Jogar extends Thread {
     Socket socket;
     CanalComunicacao comunicacao;
-    ArrayList<Socket> listaConectados = new ArrayList<>();
-    Socket jogadorLiberado;
-    ModalidadeJogador getModalidadeJogador;
-    ValoresJokenpo jogador1, jogador2;
-    Socket ganhador;
-    
+    GerenciaComunicacao infoJogador;
+    ArrayList<GerenciaComunicacao> listaConectados = new ArrayList<>();
+    GerenciaComunicacao jogadorLiberado;
+    int getModalidadeJogador;
+    ValoresJokenpo valorJokenpo;
+    private ValoresJokenpo valorJogador1, valorJogador2;
 
-    public Jogar(Socket socket) {
-        this.socket = socket;
-        this.comunicacao = new CanalComunicacao(socket);
+    public Jogar(GerenciaComunicacao infoJogador) {
+        this.infoJogador = infoJogador;
+        this.socket = infoJogador.getSocket();
+        this.comunicacao = infoJogador.getCanalComunicacao();
+        this.getModalidadeJogador = (int) comunicacao.receive();
     }
 
-    public void receberLista(ArrayList<Socket> listaConectados) {
+    public void receberLista(ArrayList<GerenciaComunicacao> listaConectados) {
         this.listaConectados = listaConectados;
     }
 
     @Override
     public void run() {
-        this.getModalidadeJogador = (ModalidadeJogador) comunicacao.receive();
+        System.out.println("RECEBIDO" + getModalidadeJogador);
 
         LiberarJogo liberacao = new LiberarJogo();
 
-        switch (getModalidadeJogador.getModalidadeJogo()) {
+        switch (getModalidadeJogador) {
             case 1:
                 // Procura jogador enquanto não houver jogador na lista
                 try {
@@ -36,31 +38,99 @@ public class Jogar extends Thread {
                     }
 
                     liberacao.setRespostaLiberacao(true);
-                    comunicacao.send(liberacao);
 
-                    CanalComunicacao jogadorAnterior = new CanalComunicacao(this.jogadorLiberado);
-                    jogadorAnterior.send(liberacao);
-                    
-                    //Receber os valores do jokenpo
-                    this.jogador1 = (ValoresJokenpo)jogadorAnterior.receive();
+                    infoJogador.getCanalComunicacao().send(liberacao);
+                    jogadorLiberado.getCanalComunicacao().send(liberacao);
 
-                    comunicacao = new CanalComunicacao(this.socket);
+                    // Receber os valores do jokenpo
 
-                    this.jogador2 = (ValoresJokenpo) comunicacao.receive();
+                    /*
+                     * sleep(6000);
+                     * System.out.println((ValoresJokenpo)
+                     * infoJogador.getCanalComunicacao().receive());
+                     * sleep(6000);
+                     * System.out.println((ValoresJokenpo)
+                     * jogadorLiberado.getCanalComunicacao().receive());
+                     * sleep(6000);
+                     */
 
-                    System.out.println(jogador1.getValorJokenpo() + " + " + jogador2.getValorJokenpo());
+                    sleep(2000);
+                    this.valorJogador1 = (ValoresJokenpo) infoJogador.getCanalComunicacao().receive();
+                    sleep(2000);
+                    this.valorJogador2 = (ValoresJokenpo) jogadorLiberado.getCanalComunicacao().receive();
+                    sleep(2000);
 
+                    final int status_ganhador = 1;
+                    final int status_perdedor = 0;
+                    final int status_empate = 2;
 
-                    ValidaJokenpo validarGanhador = new ValidaJokenpo();
-                    validarGanhador.setJogador1(this.jogadorLiberado,jogador1.getValorJokenpo());
-                    validarGanhador.setJogador2(this.socket, jogador2.getValorJokenpo());
+                    switch (valorJogador1.getValorJokenpo()) {
+                        case 1:
+                            if (valorJogador2.getValorJokenpo() == 2) {
+                                sleep(2000);
+                                this.jogadorLiberado.getCanalComunicacao().send(status_ganhador);
+                                sleep(2000);
+                                this.infoJogador.getCanalComunicacao().send(status_perdedor);
+                                sleep(2000);
+                            }
 
-                    for (Socket ganhador : validarGanhador.getGanhador()) {
-                        System.out.println(ganhador);
-                        CanalComunicacao enviarGanhador = new CanalComunicacao(ganhador);
-                        enviarGanhador.send("VOCÊ GANHOU!");
+                            if (valorJogador2.getValorJokenpo() == 3) {
+                                sleep(2000);
+                                this.jogadorLiberado.getCanalComunicacao().send(status_perdedor);
+                                sleep(2000);
+                                this.infoJogador.getCanalComunicacao().send(status_ganhador);
+                                sleep(2000);
+                            }
+
+                            break;
+                        case 2:
+                            if (valorJogador2.getValorJokenpo() == 1) {
+                                sleep(2000);
+                                this.jogadorLiberado.getCanalComunicacao().send(status_perdedor);
+                                sleep(2000);
+                                this.infoJogador.getCanalComunicacao().send(status_ganhador);
+                                sleep(2000);
+                            }
+
+                            if (valorJogador2.getValorJokenpo() == 3) {
+                                sleep(2000);
+                                this.jogadorLiberado.getCanalComunicacao().send(status_ganhador);
+                                sleep(2000);
+                                this.infoJogador.getCanalComunicacao().send(status_perdedor);
+                                sleep(2000);
+                            }
+
+                            break;
+
+                        case 3:
+                            if (valorJogador2.getValorJokenpo() == 1) {
+                                sleep(2000);
+                                this.jogadorLiberado.getCanalComunicacao().send(status_ganhador);
+                                sleep(2000);
+                                this.infoJogador.getCanalComunicacao().send(status_perdedor);
+                                sleep(2000);
+
+                            }
+
+                            if (valorJogador2.getValorJokenpo() == 2) {
+                                sleep(2000);
+                                this.jogadorLiberado.getCanalComunicacao().send(status_perdedor);
+                                sleep(2000);
+                                this.infoJogador.getCanalComunicacao().send(status_ganhador);
+                                sleep(2000);
+                            }
+
+                            break;
+
+                        default:
+                            sleep(2000);
+                            this.jogadorLiberado.getCanalComunicacao().send(status_empate);
+                            sleep(2000);
+                            this.infoJogador.getCanalComunicacao().send(status_empate);
+                            sleep(2000);
+
+                            break;
                     }
-                    
 
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
@@ -71,7 +141,7 @@ public class Jogar extends Thread {
             case 2:
                 // Remove o jogador da lista de espera para jogar
                 for (int i = 0; i < listaConectados.size(); i++) {
-                    if (this.socket == listaConectados.get(i)) {
+                    if (this.socket == listaConectados.get(i).getSocket()) {
                         listaConectados.remove(i);
                     }
                 }
@@ -79,27 +149,21 @@ public class Jogar extends Thread {
                 liberacao.setRespostaLiberacao(true);
                 comunicacao.send(liberacao);
 
-            break;
+                break;
 
             default:
                 break;
-           
         }
-        
     }
 
     public boolean verificaDisponibilidade() {
         // Procura na lista de conectados se há jogadores diferentes desejando a mesma
         // modalidade de jogo
         try {
-            for (int i = 0; i < listaConectados.size(); i++) {
-                if (this.socket != listaConectados.get(i)) {
-                    if (getModalidadeJogador.getModalidadeJogo() == 1) {
-                        this.jogadorLiberado = listaConectados.get(i);
-                        //Esvazia a lista
-                        listaConectados.clear();
-                        return true;
-                    }
+            for (GerenciaComunicacao jogador : listaConectados) {
+                if (this.socket != jogador.getSocket()) {
+                    this.jogadorLiberado = jogador;
+                    return true;
                 }
             }
             return false;

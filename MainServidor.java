@@ -1,12 +1,14 @@
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class MainServidor {
+    public static ArrayList<GerenciaComunicacao> jogadoresConectados = new ArrayList<>();
 public static void main(String[] args) {
     int PortaServidor = 12345;
     ServerSocket socketServidor;
     Socket socketCliente;
-    GerenciaJogadores lista = new GerenciaJogadores();
+    
 
     try {
         socketServidor = new ServerSocket(PortaServidor);
@@ -22,9 +24,14 @@ public static void main(String[] args) {
             socketCliente = socketServidor.accept();
             
             System.out.println("Jogador conectado!");
-            lista.addLista(socketCliente);
-            Jogar iniciarJogo = new Jogar(socketCliente);
-            iniciarJogo.receberLista(lista.getLista());
+            
+            CanalComunicacao comunicacao = new CanalComunicacao(socketCliente);
+
+            GerenciaComunicacao infoJogador = new GerenciaComunicacao(socketCliente, comunicacao);
+            jogadoresConectados.add(infoJogador);
+
+            Jogar iniciarJogo = new Jogar(infoJogador);
+            iniciarJogo.receberLista(jogadoresConectados);
             iniciarJogo.start();
         }
     } catch (Exception e) {
