@@ -58,22 +58,38 @@ public class MainCliente {
 
             comunicacao.send(valor);
 
-            Thread.sleep(6000);
-            Integer resultado = (Integer)comunicacao.receive();
-
-            switch (resultado) {
-                case 0:
-                    System.out.println("Você perdeu :( ");
-                    break;
+            switch (modalidadeJogo) {
                 case 1:
-                    System.out.println("Você ganhou! :) ");
+
                     break;
+
                 case 2:
-                    System.out.println("Empate!");
+                    System.out.println("Agora é a vez do computador! ");
+                    Thread.sleep(6000);
+                    Object resultado = (Object) comunicacao.receive();
+
+                    System.out.println(resultado.toString());
                     break;
+
                 default:
                     break;
             }
+
+            /*
+             * switch (resultado.toString()) {
+             * case 0:
+             * System.out.println("Você perdeu :( ");
+             * break;
+             * case 1:
+             * System.out.println("Você ganhou! :) ");
+             * break;
+             * case 2:
+             * System.out.println("Empate!");
+             * break;
+             * default:
+             * break;
+             * }
+             */
 
         } catch (Exception e) {
             System.out.println("Não foi possível conectar ao servidor.");
